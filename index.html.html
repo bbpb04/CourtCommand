@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourtCommand - Basketball Coaching Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --primary: #FF4500;
+            --secondary: #1a1a1a;
+            --accent: #FFB800;
+            --bg: #0a0a0a;
+            --surface: #1a1a1a;
+            --text: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border: #2a2a2a;
+            --success: #00D9A3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Role Selection Overlay */
+        .role-selection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .role-selection-overlay.hidden {
+            display: none;
+        }
+
+        .role-selection-container {
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .role-selection-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .role-selection-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .role-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .role-card {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .role-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(255, 69, 0, 0.3);
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .role-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Login/Signup Overlay */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-overlay.hidden {
+            display: none;
+        }
+
+        .auth-container {
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 450px;
+            width: 90%;
+            animation: slideUp 0.4s ease;
+        }
+
+        .auth-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .auth-logo span {
+            color: var(--accent);
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-input, .auth-select {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .auth-input:focus, .auth-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .auth-button:hover {
+            background: #e63e00;
+            transform: translateY(-2px);
+        }
+
+        .back-button {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            margin-top: 1rem;
+        }
+
+        .back-button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(0);
+        }
+
+        /* User Info Header */
+        .user-info {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 200;
+        }
+
+        .user-role-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .user-role-badge.player {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .logout-button {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            color: var(--primary);
+            padding: 0 2rem 2rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 69, 0, 0.1);
+            border-left-color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 69, 0, 0.15);
+            border-left-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .nav-item.coach-only {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
+        }
+
+        .shared-badge {
+            position: absolute;
+            right: 1rem;
+            background: var(--success);
+            color: var(--bg);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            padding-top: 5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            animation: slideDown 0.6s ease;
+        }
+
+        .page-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Sharing Controls */
+        .sharing-controls {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .sharing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .sharing-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+
+        .sharing-options {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .sharing-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .sharing-option-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sharing-option-name {
+            font-weight: 600;
+        }
+
+        .sharing-option-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        /* Player View Indicator */
+        .player-locked {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 4rem auto;
+        }
+
+        .player-locked-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .player-locked-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .player-locked-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1.5rem;
+        }
+
+        .calendar-day-header {
+            background: var(--bg);
+            padding: 1rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .calendar-day {
+            background: var(--surface);
+            padding: 1rem;
+            min-height: 100px;
+        }
+
+        .day-number {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .day-event {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+        }
+
+        .event-practice {
+            background: rgba(255, 184, 0, 0.2);
+            color: var(--accent);
+            border-left: 2px solid var(--accent);
+        }
+
+        .event-game {
+            background: rgba(255, 69, 0, 0.2);
+            color: var(--primary);
+            border-left: 2px solid var(--primary);
+        }
+
+        /* Roster Styles */
+        .roster-table {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .roster-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px 150px 120px;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .roster-row.header {
+            font-weight: 700;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            background: var(--bg);
+        }
+
+        .player-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primary:hover {
+            background: #e63e00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 69, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            padding: 1rem 2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Content placeholders */
+        .content-placeholder {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* Video Library Styles */
+        .video-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .video-category-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .video-category-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-count {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .category-shared-indicator {
+            display: inline-block;
+            background: var(--success);
+            color: var(--bg);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+
+        .category-private-indicator {
+            display: inline-block;
+            background: var(--border);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Role Selection Overlay -->
+    <div class="role-selection-overlay" id="roleSelection">
+        <div class="role-selection-container">
+            <div class="role-selection-title">WELCOME TO COURTCOMMAND</div>
+            <div class="role-selection-subtitle">Choose how you want to sign in</div>
+            
+            <div class="role-cards">
+                <div class="role-card" onclick="selectRole('coach')">
+                    <div class="role-icon">👨‍🏫</div>
+                    <div class="role-name">COACH / ADMIN</div>
+                    <div class="role-description">Full access to create & manage content</div>
+                </div>
+                
+                <div class="role-card" onclick="selectRole('player')">
+                    <div class="role-icon">🏀</div>
+                    <div class="role-name">PLAYER / PARENT</div>
+                    <div class="role-description">View schedules, roster & shared content</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Overlay -->
+    <div class="auth-overlay hidden" id="authOverlay">
+        <div class="auth-container">
+            <div class="auth-logo">COURT<span>COMMAND</span></div>
+            <p class="auth-subtitle" id="authSubtitle">Coach Login</p>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
+                <div class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</div>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form active" id="loginForm">
+                <div class="auth-input-group">
+                    <label class="auth-label">Email</label>
+                    <input type="email" class="auth-input" placeholder="coach@example.com" required>
+                </div>
+                <div class="auth-input-group">
+                    <label class="auth-label">Password</label>
+                    <input type="password" class="auth-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="auth-button">Login</button>
+                <button type="button" class="auth-button back-button" onclick="backToRoleSelection()">← Back</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form class="auth-form" id="signupForm">
+                <div class="auth-input-group">
+                    <label class="auth-label">Full Name</label>
+                    <input type="text" class="auth-input" id="signupName" placeholder="John Smith" required>
+                </div>
+                <div class="auth-input-group">
+                    <label class="auth-label">Email</label>
+                    <input type="email" class="auth-input" placeholder="email@example.com" required>
+                </div>
+                <div class="auth-input-group" id="teamCodeGroup" style="display: none;">
+                    <label class="auth-label">Team Access Code (provided by coach)</label>
+                    <input type="text" class="auth-input" placeholder="e.g., EAGLES2024">
+                </div>
+                <div class="auth-input-group">
+                    <label class="auth-label">Password</label>
+                    <input type="password" class="auth-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="auth-button">Create Account</button>
+                <button type="button" class="auth-button back-button" onclick="backToRoleSelection()">← Back</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- User Info Header -->
+        <div class="user-info" id="userInfo" style="display: none;">
+            <span id="userName">Coach Demo</span>
+            <span class="user-role-badge" id="userRoleBadge">COACH</span>
+            <button class="logout-button" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">COURT<span>COMMAND</span></div>
+            <div class="nav-menu" id="navMenu">
+                <!-- Nav items will be generated based on role -->
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Calendar Section (ALWAYS ACCESSIBLE) -->
+            <div class="content-section active" id="calendar-section">
+                <div class="page-header">
+                    <h1 class="page-title">CALENDAR</h1>
+                    <p class="page-subtitle">Season schedule and important dates</p>
+                </div>
+
+                <div class="calendar-container">
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roster Section (ALWAYS ACCESSIBLE) -->
+            <div class="content-section" id="roster-section">
+                <div class="page-header">
+                    <h1 class="page-title">TEAM ROSTER</h1>
+                    <p class="page-subtitle">View team members and contact information</p>
+                </div>
+
+                <div class="roster-table">
+                    <div class="roster-row header">
+                        <div>#</div>
+                        <div>Name</div>
+                        <div>Grade</div>
+                        <div>Position</div>
+                        <div>Contact</div>
+                    </div>
+                    <div id="rosterList">
+                        <!-- Roster will be generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice Plans (COACH ONLY) -->
+            <div class="content-section" id="practice-section">
+                <div class="page-header">
+                    <h1 class="page-title">PRACTICE PLANS</h1>
+                    <p class="page-subtitle">Create and manage your practice sessions</p>
+                </div>
+
+                <div id="practiceContent">
+                    <!-- Will show content for coaches, locked message for players -->
+                </div>
+            </div>
+
+            <!-- Drills (COACH ONLY) -->
+            <div class="content-section" id="drills-section">
+                <div class="page-header">
+                    <h1 class="page-title">DRILL LIBRARY</h1>
+                    <p class="page-subtitle">Your collection of basketball drills</p>
+                </div>
+
+                <div id="drillsContent">
+                    <!-- Will show content for coaches, locked message for players -->
+                </div>
+            </div>
+
+            <!-- Video Library (COACH CAN SHARE) -->
+            <div class="content-section" id="videos-section">
+                <div class="page-header">
+                    <h1 class="page-title">VIDEO LIBRARY</h1>
+                    <p class="page-subtitle">Training videos organized by category</p>
+                </div>
+
+                <!-- Sharing Controls (Coach Only) -->
+                <div class="sharing-controls" id="sharingControls" style="display: none;">
+                    <div class="sharing-header">
+                        <div class="sharing-title">SHARING SETTINGS</div>
+                    </div>
+                    <div class="sharing-options">
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">🏀 Offense Videos</div>
+                                    <div class="sharing-option-desc">Share offensive plays and strategies</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleOffense" onclick="toggleShare('offense')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">🛡️ Defense Videos</div>
+                                    <div class="sharing-option-desc">Share defensive drills and techniques</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleDefense" onclick="toggleShare('defense')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">⚡ Ball Handling Videos</div>
+                                    <div class="sharing-option-desc">Share dribbling and ball control content</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleBallhandling" onclick="toggleShare('ballhandling')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">🎯 Shooting Videos</div>
+                                    <div class="sharing-option-desc">Share shooting form and practice videos</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleShooting" onclick="toggleShare('shooting')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">💪 Training Videos</div>
+                                    <div class="sharing-option-desc">Share conditioning and strength training</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleTraining" onclick="toggleShare('training')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Categories -->
+                <div class="video-categories" id="videoCategories">
+                    <!-- Will be populated based on role and sharing settings -->
+                </div>
+            </div>
+
+            <!-- Team Management (COACH ONLY) -->
+            <div class="content-section" id="team-section">
+                <div class="page-header">
+                    <h1 class="page-title">TEAM MANAGEMENT</h1>
+                    <p class="page-subtitle">Manage players, access codes, and team settings</p>
+                </div>
+
+                <div id="teamContent">
+                    <!-- Will show content for coaches, locked message for players -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // APP STATE
+        // ============================================
+        let currentUser = null;
+        let userRole = null; // 'coach' or 'player'
+        let selectedRole = null;
+
+        // Sharing settings (Coach controls these)
+        let sharingSettings = {
+            offense: false,
+            defense: false,
+            ballhandling: false,
+            shooting: false,
+            training: false
+        };
+
+        // Sample data
+        const sampleRoster = [
+            { number: 1, name: "Marcus Johnson", grade: "10th", position: "PG", contact: "(555) 123-4567" },
+            { number: 3, name: "Tyler Williams", grade: "11th", position: "SG", contact: "(555) 234-5678" },
+            { number: 5, name: "Jordan Martinez", grade: "10th", position: "SF", contact: "(555) 345-6789" },
+            { number: 10, name: "Alex Thompson", grade: "11th", position: "PF", contact: "(555) 456-7890" },
+            { number: 12, name: "Chris Anderson", grade: "12th", position: "C", contact: "(555) 567-8901" }
+        ];
+
+        const videoCategories = [
+            { id: 'offense', name: 'Offense', icon: '🏀', count: 12 },
+            { id: 'defense', name: 'Defense', icon: '🛡️', count: 8 },
+            { id: 'ballhandling', name: 'Ball Handling', icon: '⚡', count: 15 },
+            { id: 'shooting', name: 'Shooting', icon: '🎯', count: 20 },
+            { id: 'training', name: 'Training', icon: '💪', count: 10 }
+        ];
+
+        // ============================================
+        // ROLE SELECTION
+        // ============================================
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('roleSelection').classList.add('hidden');
+            document.getElementById('authOverlay').classList.remove('hidden');
+            
+            // Update auth subtitle based on role
+            const subtitle = role === 'coach' ? 'Coach / Admin Login' : 'Player / Parent Login';
+            document.getElementById('authSubtitle').textContent = subtitle;
+            
+            // Show/hide team code field for players
+            const teamCodeGroup = document.getElementById('teamCodeGroup');
+            if (role === 'player') {
+                teamCodeGroup.style.display = 'block';
+            } else {
+                teamCodeGroup.style.display = 'none';
+            }
+        }
+
+        function backToRoleSelection() {
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('roleSelection').classList.remove('hidden');
+            selectedRole = null;
+        }
+
+        // ============================================
+        // AUTH FUNCTIONS
+        // ============================================
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('signupForm').classList.add('active');
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = selectedRole === 'coach' ? 'Coach Demo' : 'Player Demo';
+            login('demo@example.com', name, selectedRole);
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            login('demo@example.com', name, selectedRole);
+        });
+
+        function login(email, name, role) {
+            currentUser = { email, name };
+            userRole = role;
+            
+            // Hide overlays
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('roleSelection').classList.add('hidden');
+            
+            // Show user info
+            const userInfo = document.getElementById('userInfo');
+            userInfo.style.display = 'flex';
+            document.getElementById('userName').textContent = name;
+            
+            const roleBadge = document.getElementById('userRoleBadge');
+            if (role === 'coach') {
+                roleBadge.textContent = 'COACH';
+                roleBadge.classList.remove('player');
+            } else {
+                roleBadge.textContent = 'PLAYER';
+                roleBadge.classList.add('player');
+            }
+            
+            // Build navigation based on role
+            buildNavigation();
+            
+            // Initialize content
+            initializeContent();
+        }
+
+        function logout() {
+            currentUser = null;
+            userRole = null;
+            selectedRole = null;
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('roleSelection').classList.remove('hidden');
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function buildNavigation() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.innerHTML = '';
+
+            const navItems = [
+                { id: 'calendar', icon: '📅', label: 'Calendar', roles: ['coach', 'player'] },
+                { id: 'roster', icon: '👥', label: 'Team Roster', roles: ['coach', 'player'] },
+                { id: 'practice', icon: '📋', label: 'Practice Plans', roles: ['coach'] },
+                { id: 'drills', icon: '🏀', label: 'Drill Library', roles: ['coach'] },
+                { id: 'videos', icon: '🎥', label: 'Video Library', roles: ['coach', 'player'] },
+                { id: 'team', icon: '⚙️', label: 'Team Settings', roles: ['coach'] }
+            ];
+
+            navItems.forEach((item, index) => {
+                if (item.roles.includes(userRole)) {
+                    const navItem = document.createElement('div');
+                    navItem.className = 'nav-item' + (index === 0 ? ' active' : '');
+                    navItem.dataset.section = item.id;
+                    navItem.innerHTML = `
+                        <span style="font-size: 1.2rem;">${item.icon}</span>
+                        <span>${item.label}</span>
+                    `;
+                    navItem.onclick = () => navigateTo(item.id);
+                    navMenu.appendChild(navItem);
+                }
+            });
+        }
+
+        function navigateTo(section) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === section) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Show corresponding section
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`${section}-section`).classList.add('active');
+        }
+
+        // ============================================
+        // SHARING CONTROLS
+        // ============================================
+        function toggleShare(category) {
+            sharingSettings[category] = !sharingSettings[category];
+            const toggle = document.getElementById(`toggle${category.charAt(0).toUpperCase() + category.slice(1)}`);
+            
+            if (sharingSettings[category]) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+
+            // Update video categories display
+            updateVideoCategories();
+        }
+
+        function updateVideoCategories() {
+            const container = document.getElementById('videoCategories');
+            container.innerHTML = '';
+
+            videoCategories.forEach(cat => {
+                // For coaches: show all categories with sharing indicators
+                // For players: only show shared categories
+                if (userRole === 'coach' || sharingSettings[cat.id]) {
+                    const card = document.createElement('div');
+                    card.className = 'video-category-card';
+                    
+                    const sharedIndicator = userRole === 'coach' 
+                        ? (sharingSettings[cat.id] 
+                            ? '<div class="category-shared-indicator">✓ Shared with Team</div>'
+                            : '<div class="category-private-indicator">🔒 Private</div>')
+                        : '<div class="category-shared-indicator">✓ Shared by Coach</div>';
+
+                    card.innerHTML = `
+                        <div class="category-icon">${cat.icon}</div>
+                        <div class="category-name">${cat.name}</div>
+                        <div class="category-count">${cat.count} videos</div>
+                        ${sharedIndicator}
+                    `;
+                    container.appendChild(card);
+                }
+            });
+
+            // If player and no categories shared
+            if (userRole === 'player' && Object.values(sharingSettings).every(v => !v)) {
+                container.innerHTML = `
+                    <div class="player-locked" style="grid-column: 1/-1;">
+                        <div class="player-locked-icon">🔒</div>
+                        <h2 class="player-locked-title">NO VIDEOS SHARED YET</h2>
+                        <p class="player-locked-text">
+                            Your coach hasn't shared any training videos yet.<br>
+                            Check back soon for new content!
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // CONTENT INITIALIZATION
+        // ============================================
+        function initializeContent() {
+            // Initialize calendar
+            generateCalendar();
+
+            // Initialize roster
+            generateRoster();
+
+            // Initialize practice plans (coach only)
+            if (userRole === 'coach') {
+                document.getElementById('practiceContent').innerHTML = `
+                    <div class="action-buttons">
+                        <button class="btn-primary">+ New Practice Plan</button>
+                        <button class="btn-secondary">View Templates</button>
+                    </div>
+                    <div class="content-placeholder">
+                        <p>Create practice plans with drag-and-drop sections, time blocks, and drill assignments.</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('practiceContent').innerHTML = `
+                    <div class="player-locked">
+                        <div class="player-locked-icon">👨‍🏫</div>
+                        <h2 class="player-locked-title">COACH ONLY SECTION</h2>
+                        <p class="player-locked-text">
+                            Practice plans are managed by your coach.<br>
+                            Check the calendar for practice schedules and times.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Initialize drills (coach only)
+            if (userRole === 'coach') {
+                document.getElementById('drillsContent').innerHTML = `
+                    <div class="action-buttons">
+                        <button class="btn-primary">+ Add Drill</button>
+                        <button class="btn-secondary">Import Drills</button>
+                    </div>
+                    <div class="content-placeholder">
+                        <p>Save and organize basketball drills with embedded videos, coaching notes, and categories.</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('drillsContent').innerHTML = `
+                    <div class="player-locked">
+                        <div class="player-locked-icon">🏀</div>
+                        <h2 class="player-locked-title">COACH ONLY SECTION</h2>
+                        <p class="player-locked-text">
+                            The drill library is for coaches to organize their practice materials.<br>
+                            Your coach may share specific training videos with the team.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Initialize video library
+            if (userRole === 'coach') {
+                document.getElementById('sharingControls').style.display = 'block';
+            }
+            updateVideoCategories();
+
+            // Initialize team management (coach only)
+            if (userRole === 'coach') {
+                document.getElementById('teamContent').innerHTML = `
+                    <div class="sharing-controls">
+                        <div class="sharing-title">TEAM ACCESS CODE</div>
+                        <p style="margin: 1rem 0; color: var(--text-secondary);">
+                            Share this code with players and parents to give them access to the team:
+                        </p>
+                        <div style="background: var(--bg); padding: 1.5rem; border-radius: 8px; text-align: center;">
+                            <div style="font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 3px; color: var(--primary);">
+                                EAGLES2024
+                            </div>
+                            <button class="btn-secondary" style="margin-top: 1rem;">Generate New Code</button>
+                        </div>
+                    </div>
+
+                    <div class="content-placeholder" style="margin-top: 2rem;">
+                        <p>Manage team members, invite codes, and access permissions here.</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('teamContent').innerHTML = `
+                    <div class="player-locked">
+                        <div class="player-locked-icon">⚙️</div>
+                        <h2 class="player-locked-title">COACH ONLY SECTION</h2>
+                        <p class="player-locked-text">
+                            Team settings and management are controlled by your coach.<br>
+                            Contact your coach if you need to update your information.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // CALENDAR
+        // ============================================
+        function generateCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            grid.innerHTML = '';
+
+            // Headers
+            days.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+
+            // Sample events
+            const events = {
+                15: [{ type: 'practice', text: 'Practice 4pm' }],
+                18: [{ type: 'practice', text: 'Practice 4pm' }],
+                20: [{ type: 'game', text: 'vs Eagles 6pm' }],
+                22: [{ type: 'practice', text: 'Practice 4pm' }],
+                25: [{ type: 'practice', text: 'Practice 4pm' }],
+                27: [{ type: 'game', text: 'vs Hawks 7pm' }]
+            };
+
+            // Days
+            for (let i = 1; i <= 31; i++) {
+                const day = document.createElement('div');
+                day.className = 'calendar-day';
+                day.innerHTML = `<div class="day-number">${i}</div>`;
+                
+                if (events[i]) {
+                    events[i].forEach(event => {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = `day-event event-${event.type}`;
+                        eventDiv.textContent = event.text;
+                        day.appendChild(eventDiv);
+                    });
+                }
+                
+                grid.appendChild(day);
+            }
+        }
+
+        // ============================================
+        // ROSTER
+        // ============================================
+        function generateRoster() {
+            const container = document.getElementById('rosterList');
+            container.innerHTML = '';
+            
+            sampleRoster.forEach(player => {
+                const row = document.createElement('div');
+                row.className = 'roster-row';
+                row.innerHTML = `
+                    <div class="player-number">${player.number}</div>
+                    <div>${player.name}</div>
+                    <div>${player.grade}</div>
+                    <div>${player.position}</div>
+                    <div>${player.contact}</div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        // Show role selection on load
+        window.addEventListener('load', () => {
+            document.getElementById('roleSelection').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
