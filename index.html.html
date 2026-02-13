@@ -333,6 +333,12 @@
             font-size: 1.5rem;
             line-height: 1;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: #e63e00;
+            transform: scale(1.05);
         }
 
         .menu-overlay {
@@ -342,8 +348,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
         }
 
         /* Mobile styles */
@@ -354,6 +366,7 @@
 
             .sidebar {
                 transform: translateX(-100%);
+                z-index: 101;
             }
 
             .sidebar.mobile-open {
@@ -366,13 +379,51 @@
 
             .main-content {
                 margin-left: 0;
+                padding: 2rem 1rem;
                 padding-top: 5rem;
+                width: 100%;
             }
 
             .user-info {
                 top: 1rem;
                 right: 1rem;
                 left: auto;
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-subtitle {
+                font-size: 0.95rem;
+            }
+
+            /* Hide some columns on mobile roster */
+            .roster-row {
+                grid-template-columns: 50px 1fr 80px;
+            }
+
+            .roster-row > :nth-child(4),
+            .roster-row > :nth-child(5) {
+                display: none;
+            }
+
+            /* Better video category cards on mobile */
+            .video-categories {
+                grid-template-columns: 1fr;
+            }
+
+            /* Better sharing controls on mobile */
+            .sharing-controls {
+                padding: 1rem;
+            }
+
+            .sharing-option {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
             }
         }
 
@@ -1349,9 +1400,14 @@
         function toggleMobileMenu() {
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.getElementById('menuOverlay');
+            const isOpen = sidebar.classList.contains('mobile-open');
             
-            sidebar.classList.toggle('mobile-open');
-            overlay.classList.toggle('active');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+            }
         }
 
         function closeMobileMenu() {
@@ -1361,6 +1417,19 @@
             sidebar.classList.remove('mobile-open');
             overlay.classList.remove('active');
         }
+
+        // Close menu when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.querySelector('.sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const isClickInsideSidebar = sidebar.contains(e.target);
+            const isClickOnToggle = menuToggle.contains(e.target);
+            
+            // If menu is open and click is outside sidebar and not on toggle button
+            if (sidebar.classList.contains('mobile-open') && !isClickInsideSidebar && !isClickOnToggle) {
+                closeMobileMenu();
+            }
+        });
 
         // ============================================
         // SHARING CONTROLS
