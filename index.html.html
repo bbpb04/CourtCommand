@@ -314,6 +314,66 @@
             position: fixed;
             height: 100vh;
             z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 150;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            cursor: pointer;
+            color: white;
+            font-size: 1.5rem;
+            line-height: 1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .menu-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 5rem;
+            }
+
+            .user-info {
+                top: 1rem;
+                right: 1rem;
+                left: auto;
+            }
         }
 
         .logo {
@@ -844,6 +904,12 @@
     </div>
 
     <div class="app-container">
+        <!-- Mobile Menu Toggle -->
+        <button class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()">☰</button>
+        
+        <!-- Menu Overlay (for closing menu on mobile) -->
+        <div class="menu-overlay" id="menuOverlay" onclick="closeMobileMenu()"></div>
+
         <!-- User Info Header -->
         <div class="user-info" id="userInfo" style="display: none;">
             <span id="userName">Coach Demo</span>
@@ -992,6 +1058,66 @@
                                 <div class="toggle-slider"></div>
                             </div>
                         </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">⭐ Skill Work Videos</div>
+                                    <div class="sharing-option-desc">Share individual skill development for players</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleSkillwork" onclick="toggleShare('skillwork')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">🎬 Game Film Review</div>
+                                    <div class="sharing-option-desc">Share game footage and film breakdowns</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleGamefilm" onclick="toggleShare('gamefilm')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">🧠 Mental Game Videos</div>
+                                    <div class="sharing-option-desc">Share mental toughness and mindset content</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleMental" onclick="toggleShare('mental')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">🏃 Agility & Speed Videos</div>
+                                    <div class="sharing-option-desc">Share footwork, speed, and agility training</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="toggleAgility" onclick="toggleShare('agility')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="sharing-option">
+                            <div class="sharing-option-label">
+                                <div>
+                                    <div class="sharing-option-name">📚 Playbook Videos</div>
+                                    <div class="sharing-option-desc">Share plays, sets, and team strategies</div>
+                                </div>
+                            </div>
+                            <div class="toggle-switch" id="togglePlaybook" onclick="toggleShare('playbook')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1029,7 +1155,12 @@
             defense: false,
             ballhandling: false,
             shooting: false,
-            training: false
+            training: false,
+            skillwork: false,
+            gamefilm: false,
+            mental: false,
+            agility: false,
+            playbook: false
         };
 
         // Sample data
@@ -1046,7 +1177,12 @@
             { id: 'defense', name: 'Defense', icon: '🛡️', count: 8 },
             { id: 'ballhandling', name: 'Ball Handling', icon: '⚡', count: 15 },
             { id: 'shooting', name: 'Shooting', icon: '🎯', count: 20 },
-            { id: 'training', name: 'Training', icon: '💪', count: 10 }
+            { id: 'training', name: 'Training', icon: '💪', count: 10 },
+            { id: 'skillwork', name: 'Skill Work', icon: '⭐', count: 18 },
+            { id: 'gamefilm', name: 'Game Film Review', icon: '🎬', count: 14 },
+            { id: 'mental', name: 'Mental Game', icon: '🧠', count: 9 },
+            { id: 'agility', name: 'Agility & Speed', icon: '🏃', count: 11 },
+            { id: 'playbook', name: 'Playbook', icon: '📚', count: 16 }
         ];
 
         // ============================================
@@ -1202,6 +1338,28 @@
             // Show corresponding section
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.getElementById(`${section}-section`).classList.add('active');
+
+            // Close mobile menu after navigation
+            closeMobileMenu();
+        }
+
+        // ============================================
+        // MOBILE MENU
+        // ============================================
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('menuOverlay');
+            
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('menuOverlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
         }
 
         // ============================================
