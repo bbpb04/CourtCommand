@@ -36,6 +36,8 @@
         .app-container {
             display: flex;
             height: 100vh;
+            width: 100%;
+            overflow: hidden;
         }
 
         /* Role Selection Overlay */
@@ -425,13 +427,17 @@
 
         /* Mobile styles */
         @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+
             .menu-toggle {
                 display: block;
             }
 
             .sidebar {
                 transform: translateX(-100%);
-                z-index: 101;
+                z-index: 1001;
                 box-shadow: none;
             }
 
@@ -440,23 +446,33 @@
                 box-shadow: 4px 0 12px rgba(0, 0, 0, 0.5);
             }
 
+            .menu-overlay {
+                z-index: 1000;
+            }
+
             .main-content {
-                margin-left: 0;
-                padding: 2rem 1rem;
+                margin-left: 0 !important;
+                padding: 1rem;
                 padding-top: 5rem;
-                width: 100%;
+                width: 100vw;
+                max-width: 100%;
                 position: relative;
                 z-index: 1;
                 background: var(--bg);
+                min-height: 100vh;
             }
 
             .user-info {
                 top: 1rem;
                 right: 1rem;
                 left: auto;
-                font-size: 0.85rem;
-                padding: 0.5rem 1rem;
-                z-index: 102;
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+                z-index: 200;
+            }
+
+            .page-header {
+                margin-bottom: 1.5rem;
             }
 
             .page-title {
@@ -464,12 +480,40 @@
             }
 
             .page-subtitle {
-                font-size: 0.95rem;
+                font-size: 0.9rem;
             }
 
-            /* Hide some columns on mobile roster */
+            /* Calendar mobile fixes */
+            .calendar-container {
+                padding: 1rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .calendar-grid {
+                min-width: 100%;
+                font-size: 0.75rem;
+            }
+
+            .calendar-day {
+                min-height: 80px;
+                padding: 0.5rem;
+            }
+
+            .day-event {
+                font-size: 0.65rem;
+            }
+
+            /* Roster mobile fixes */
+            .roster-table {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             .roster-row {
-                grid-template-columns: 50px 1fr 80px;
+                grid-template-columns: 50px 1fr 60px;
+                padding: 0.75rem;
+                font-size: 0.85rem;
             }
 
             .roster-row > :nth-child(4),
@@ -477,30 +521,46 @@
                 display: none;
             }
 
-            /* Better video category cards on mobile */
+            /* Video categories mobile */
             .video-categories {
                 grid-template-columns: 1fr;
+                gap: 1rem;
             }
 
-            /* Better sharing controls on mobile */
+            .video-category-card {
+                padding: 1.5rem;
+            }
+
+            /* Sharing controls mobile */
             .sharing-controls {
                 padding: 1rem;
             }
 
             .sharing-option {
+                flex-direction: row;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.75rem;
+            }
+
+            .sharing-option-name {
+                font-size: 0.9rem;
+            }
+
+            .sharing-option-desc {
+                font-size: 0.8rem;
+            }
+
+            /* Action buttons mobile */
+            .action-buttons {
                 flex-direction: column;
-                align-items: flex-start;
                 gap: 0.75rem;
             }
 
-            /* Better calendar on mobile */
-            .calendar-container {
-                padding: 1rem;
-                overflow-x: auto;
-            }
-
-            .calendar-grid {
-                min-width: 600px;
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                padding: 0.875rem 1.5rem;
+                font-size: 0.95rem;
             }
         }
 
@@ -571,8 +631,11 @@
             margin-left: 280px;
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 2rem;
             padding-top: 5rem;
+            width: 100%;
+            max-width: 100%;
         }
 
         .page-header {
