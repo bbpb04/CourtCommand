@@ -50,6 +50,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 2rem 1rem;
         }
 
         .role-selection-overlay.hidden {
@@ -64,6 +67,7 @@
             max-width: 600px;
             width: 90%;
             text-align: center;
+            margin: auto;
         }
 
         .role-selection-title {
@@ -85,6 +89,37 @@
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
             margin-bottom: 2rem;
+        }
+
+        /* Mobile adjustments for role selection */
+        @media (max-width: 768px) {
+            .role-selection-overlay {
+                align-items: flex-start;
+                padding: 1rem;
+            }
+
+            .role-selection-container {
+                padding: 2rem 1.5rem;
+                margin-top: 2rem;
+            }
+
+            .role-selection-title {
+                font-size: 2rem;
+            }
+
+            .role-selection-subtitle {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .role-cards {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .role-card {
+                padding: 1.5rem;
+            }
         }
 
         .role-card {
@@ -131,6 +166,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 2rem 1rem;
         }
 
         .auth-overlay.hidden {
@@ -145,6 +183,28 @@
             max-width: 450px;
             width: 90%;
             animation: slideUp 0.4s ease;
+            margin: auto;
+        }
+
+        /* Mobile adjustments for auth */
+        @media (max-width: 768px) {
+            .auth-overlay {
+                align-items: flex-start;
+                padding: 1rem;
+            }
+
+            .auth-container {
+                padding: 2rem 1.5rem;
+                margin-top: 2rem;
+            }
+
+            .auth-logo {
+                font-size: 2.5rem;
+            }
+
+            .auth-subtitle {
+                font-size: 0.9rem;
+            }
         }
 
         .auth-logo {
