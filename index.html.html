@@ -782,6 +782,15 @@
                     <div class="role-description">View schedules, roster & shared content</div>
                 </div>
             </div>
+
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center;">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+                    Just exploring? Try the demo
+                </p>
+                <button class="auth-button" style="background: var(--bg); border: 1px solid var(--border); color: var(--text); max-width: 300px; margin: 0 auto;" onclick="enterDemoMode()">
+                    👀 Try Demo Mode (No Sign-up)
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1122,6 +1131,24 @@
             
             // Initialize content
             initializeContent();
+        }
+
+        function enterDemoMode() {
+            // Let user choose which role to demo
+            const roleChoice = confirm("Demo as COACH (click OK) or PLAYER (click Cancel)?");
+            const demoRole = roleChoice ? 'coach' : 'player';
+            const demoName = roleChoice ? 'Demo Coach' : 'Demo Player';
+            
+            login('demo@example.com', demoName, demoRole);
+            
+            // Show a notice that this is demo mode
+            setTimeout(() => {
+                alert('👀 DEMO MODE ACTIVE\n\nYou can explore all features!\n\n' + 
+                      (demoRole === 'coach' ? 
+                       'As a COACH, you can see all sections and controls.' : 
+                       'As a PLAYER, you can see calendar, roster, and shared videos.') +
+                      '\n\nNo data will be saved. Sign up to create a real account!');
+            }, 500);
         }
 
         function logout() {
