@@ -36,8 +36,6 @@
         .app-container {
             display: flex;
             height: 100vh;
-            width: 100%;
-            overflow: hidden;
         }
 
         /* Role Selection Overlay */
@@ -52,9 +50,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 2rem 1rem;
         }
 
         .role-selection-overlay.hidden {
@@ -69,7 +64,6 @@
             max-width: 600px;
             width: 90%;
             text-align: center;
-            margin: auto;
         }
 
         .role-selection-title {
@@ -91,37 +85,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
             margin-bottom: 2rem;
-        }
-
-        /* Mobile adjustments for role selection */
-        @media (max-width: 768px) {
-            .role-selection-overlay {
-                align-items: flex-start;
-                padding: 1rem;
-            }
-
-            .role-selection-container {
-                padding: 2rem 1.5rem;
-                margin-top: 2rem;
-            }
-
-            .role-selection-title {
-                font-size: 2rem;
-            }
-
-            .role-selection-subtitle {
-                font-size: 1rem;
-                margin-bottom: 2rem;
-            }
-
-            .role-cards {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .role-card {
-                padding: 1.5rem;
-            }
         }
 
         .role-card {
@@ -168,9 +131,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 2rem 1rem;
         }
 
         .auth-overlay.hidden {
@@ -185,28 +145,6 @@
             max-width: 450px;
             width: 90%;
             animation: slideUp 0.4s ease;
-            margin: auto;
-        }
-
-        /* Mobile adjustments for auth */
-        @media (max-width: 768px) {
-            .auth-overlay {
-                align-items: flex-start;
-                padding: 1rem;
-            }
-
-            .auth-container {
-                padding: 2rem 1.5rem;
-                margin-top: 2rem;
-            }
-
-            .auth-logo {
-                font-size: 2.5rem;
-            }
-
-            .auth-subtitle {
-                font-size: 0.9rem;
-            }
         }
 
         .auth-logo {
@@ -376,203 +314,6 @@
             position: fixed;
             height: 100vh;
             z-index: 100;
-            transition: transform 0.3s ease;
-            left: 0;
-            top: 0;
-        }
-
-        /* Mobile menu toggle */
-        .menu-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 150;
-            background: var(--primary);
-            border: none;
-            border-radius: 8px;
-            padding: 0.75rem;
-            cursor: pointer;
-            color: white;
-            font-size: 1.5rem;
-            line-height: 1;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .menu-toggle:hover {
-            background: #e63e00;
-            transform: scale(1.05);
-        }
-
-        .menu-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 99;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-
-        .menu-overlay.active {
-            display: block;
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* Mobile styles */
-        @media (max-width: 768px) {
-            body {
-                overflow-x: hidden;
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-                z-index: 1001;
-                box-shadow: none;
-            }
-
-            .sidebar.mobile-open {
-                transform: translateX(0);
-                box-shadow: 4px 0 12px rgba(0, 0, 0, 0.5);
-            }
-
-            .menu-overlay {
-                z-index: 1000;
-            }
-
-            .main-content {
-                margin-left: 0 !important;
-                padding: 1rem;
-                padding-top: 5rem;
-                width: 100vw;
-                max-width: 100%;
-                position: relative;
-                z-index: 1;
-                background: var(--bg);
-                min-height: 100vh;
-            }
-
-            .user-info {
-                top: 1rem;
-                right: 1rem;
-                left: auto;
-                font-size: 0.75rem;
-                padding: 0.5rem 0.75rem;
-                z-index: 200;
-            }
-
-            .page-header {
-                margin-bottom: 1.5rem;
-            }
-
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .page-subtitle {
-                font-size: 0.9rem;
-            }
-
-            /* Calendar mobile fixes */
-            .calendar-container {
-                padding: 1rem;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                border-radius: 12px;
-            }
-
-            .calendar-grid {
-                min-width: 700px;
-                font-size: 0.75rem;
-            }
-
-            .calendar-day-header {
-                padding: 0.75rem 0.5rem;
-                font-size: 0.8rem;
-            }
-
-            .calendar-day {
-                min-height: 80px;
-                padding: 0.5rem;
-            }
-
-            .day-number {
-                font-size: 0.85rem;
-            }
-
-            .day-event {
-                font-size: 0.65rem;
-                padding: 0.2rem 0.4rem;
-            }
-
-            /* Roster mobile fixes */
-            .roster-table {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .roster-row {
-                grid-template-columns: 50px 1fr 60px;
-                padding: 0.75rem;
-                font-size: 0.85rem;
-            }
-
-            .roster-row > :nth-child(4),
-            .roster-row > :nth-child(5) {
-                display: none;
-            }
-
-            /* Video categories mobile */
-            .video-categories {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .video-category-card {
-                padding: 1.5rem;
-            }
-
-            /* Sharing controls mobile */
-            .sharing-controls {
-                padding: 1rem;
-            }
-
-            .sharing-option {
-                flex-direction: row;
-                align-items: center;
-                gap: 1rem;
-                padding: 0.75rem;
-            }
-
-            .sharing-option-name {
-                font-size: 0.9rem;
-            }
-
-            .sharing-option-desc {
-                font-size: 0.8rem;
-            }
-
-            /* Action buttons mobile */
-            .action-buttons {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .btn-primary, .btn-secondary {
-                width: 100%;
-                padding: 0.875rem 1.5rem;
-                font-size: 0.95rem;
-            }
         }
 
         .logo {
@@ -642,11 +383,8 @@
             margin-left: 280px;
             flex: 1;
             overflow-y: auto;
-            overflow-x: hidden;
             padding: 2rem;
             padding-top: 5rem;
-            width: 100%;
-            max-width: 100%;
         }
 
         .page-header {
@@ -798,31 +536,6 @@
             border-radius: 16px;
             padding: 2rem;
             border: 1px solid var(--border);
-            position: relative;
-        }
-
-        .calendar-scroll-hint {
-            display: none;
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary);
-            font-size: 2rem;
-            opacity: 0.5;
-            pointer-events: none;
-            animation: slideHint 2s infinite;
-        }
-
-        @keyframes slideHint {
-            0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.5; }
-            50% { transform: translateY(-50%) translateX(-10px); opacity: 0.8; }
-        }
-
-        @media (max-width: 768px) {
-            .calendar-scroll-hint {
-                display: block;
-            }
         }
 
         .calendar-grid {
@@ -1069,15 +782,6 @@
                     <div class="role-description">View schedules, roster & shared content</div>
                 </div>
             </div>
-
-            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center;">
-                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
-                    Just exploring? Try the demo
-                </p>
-                <button class="auth-button" style="background: var(--bg); border: 1px solid var(--border); color: var(--text); max-width: 300px; margin: 0 auto;" onclick="enterDemoMode()">
-                    👀 Try Demo Mode (No Sign-up)
-                </button>
-            </div>
         </div>
     </div>
 
@@ -1131,12 +835,6 @@
     </div>
 
     <div class="app-container">
-        <!-- Mobile Menu Toggle -->
-        <button class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()">☰</button>
-        
-        <!-- Menu Overlay (for closing menu on mobile) -->
-        <div class="menu-overlay" id="menuOverlay" onclick="closeMobileMenu()"></div>
-
         <!-- User Info Header -->
         <div class="user-info" id="userInfo" style="display: none;">
             <span id="userName">Coach Demo</span>
@@ -1162,7 +860,6 @@
                 </div>
 
                 <div class="calendar-container">
-                    <div class="calendar-scroll-hint">→</div>
                     <div class="calendar-grid" id="calendarGrid">
                         <!-- Calendar will be generated by JS -->
                     </div>
@@ -1286,66 +983,6 @@
                                 <div class="toggle-slider"></div>
                             </div>
                         </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">⭐ Skill Work Videos</div>
-                                    <div class="sharing-option-desc">Share individual skill development for players</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleSkillwork" onclick="toggleShare('skillwork')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">🎬 Game Film Review</div>
-                                    <div class="sharing-option-desc">Share game footage and film breakdowns</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleGamefilm" onclick="toggleShare('gamefilm')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">🧠 Mental Game Videos</div>
-                                    <div class="sharing-option-desc">Share mental toughness and mindset content</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleMental" onclick="toggleShare('mental')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">🏃 Agility & Speed Videos</div>
-                                    <div class="sharing-option-desc">Share footwork, speed, and agility training</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleAgility" onclick="toggleShare('agility')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">📚 Playbook Videos</div>
-                                    <div class="sharing-option-desc">Share plays, sets, and team strategies</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="togglePlaybook" onclick="toggleShare('playbook')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -1383,12 +1020,7 @@
             defense: false,
             ballhandling: false,
             shooting: false,
-            training: false,
-            skillwork: false,
-            gamefilm: false,
-            mental: false,
-            agility: false,
-            playbook: false
+            training: false
         };
 
         // Sample data
@@ -1405,12 +1037,7 @@
             { id: 'defense', name: 'Defense', icon: '🛡️', count: 8 },
             { id: 'ballhandling', name: 'Ball Handling', icon: '⚡', count: 15 },
             { id: 'shooting', name: 'Shooting', icon: '🎯', count: 20 },
-            { id: 'training', name: 'Training', icon: '💪', count: 10 },
-            { id: 'skillwork', name: 'Skill Work', icon: '⭐', count: 18 },
-            { id: 'gamefilm', name: 'Game Film Review', icon: '🎬', count: 14 },
-            { id: 'mental', name: 'Mental Game', icon: '🧠', count: 9 },
-            { id: 'agility', name: 'Agility & Speed', icon: '🏃', count: 11 },
-            { id: 'playbook', name: 'Playbook', icon: '📚', count: 16 }
+            { id: 'training', name: 'Training', icon: '💪', count: 10 }
         ];
 
         // ============================================
@@ -1497,24 +1124,6 @@
             initializeContent();
         }
 
-        function enterDemoMode() {
-            // Let user choose which role to demo
-            const roleChoice = confirm("Demo as COACH (click OK) or PLAYER (click Cancel)?");
-            const demoRole = roleChoice ? 'coach' : 'player';
-            const demoName = roleChoice ? 'Demo Coach' : 'Demo Player';
-            
-            login('demo@example.com', demoName, demoRole);
-            
-            // Show a notice that this is demo mode
-            setTimeout(() => {
-                alert('👀 DEMO MODE ACTIVE\n\nYou can explore all features!\n\n' + 
-                      (demoRole === 'coach' ? 
-                       'As a COACH, you can see all sections and controls.' : 
-                       'As a PLAYER, you can see calendar, roster, and shared videos.') +
-                      '\n\nNo data will be saved. Sign up to create a real account!');
-            }, 500);
-        }
-
         function logout() {
             currentUser = null;
             userRole = null;
@@ -1566,47 +1175,7 @@
             // Show corresponding section
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.getElementById(`${section}-section`).classList.add('active');
-
-            // Close mobile menu after navigation
-            closeMobileMenu();
         }
-
-        // ============================================
-        // MOBILE MENU
-        // ============================================
-        function toggleMobileMenu() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.getElementById('menuOverlay');
-            const isOpen = sidebar.classList.contains('mobile-open');
-            
-            if (isOpen) {
-                closeMobileMenu();
-            } else {
-                sidebar.classList.add('mobile-open');
-                overlay.classList.add('active');
-            }
-        }
-
-        function closeMobileMenu() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.getElementById('menuOverlay');
-            
-            sidebar.classList.remove('mobile-open');
-            overlay.classList.remove('active');
-        }
-
-        // Close menu when clicking outside on mobile
-        document.addEventListener('click', function(e) {
-            const sidebar = document.querySelector('.sidebar');
-            const menuToggle = document.getElementById('menuToggle');
-            const isClickInsideSidebar = sidebar.contains(e.target);
-            const isClickOnToggle = menuToggle.contains(e.target);
-            
-            // If menu is open and click is outside sidebar and not on toggle button
-            if (sidebar.classList.contains('mobile-open') && !isClickInsideSidebar && !isClickOnToggle) {
-                closeMobileMenu();
-            }
-        });
 
         // ============================================
         // SHARING CONTROLS
