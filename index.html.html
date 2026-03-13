@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CourtCommand - Basketball Coaching Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://js.stripe.com/v3/"></script>
+    <title>CourtCommand - Basketball Coaching Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #FF4500;
+            --primary-dark: #CC3700;
             --secondary: #1a1a1a;
             --accent: #FFB800;
             --bg: #0a0a0a;
             --surface: #1a1a1a;
+            --surface-hover: #252525;
             --text: #ffffff;
             --text-secondary: #a0a0a0;
             --border: #2a2a2a;
             --success: #00D9A3;
+            --danger: #FF4444;
         }
 
         * {
@@ -26,100 +28,517 @@
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
         }
 
+        /* APP CONTAINER */
         .app-container {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
         }
 
-        /* Role Selection Overlay */
-        .role-selection-overlay {
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .nav-items {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--surface-hover);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 69, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #CC3333;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 3000;
-            display: flex;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
+            animation: fadeIn 0.2s ease;
         }
 
-        .role-selection-overlay.hidden {
-            display: none;
+        .modal-overlay.active {
+            display: flex;
         }
 
-        .role-selection-container {
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
             background: var(--surface);
-            border: 2px solid var(--primary);
-            border-radius: 20px;
-            padding: 3rem;
+            border-radius: 12px;
+            padding: 2rem;
             max-width: 600px;
             width: 90%;
-            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
         }
 
-        .role-selection-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.5rem;
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--primary);
-            margin-bottom: 1rem;
-            letter-spacing: 2px;
         }
 
-        .role-selection-subtitle {
+        .modal-close {
+            background: none;
+            border: none;
             color: var(--text-secondary);
-            margin-bottom: 3rem;
-            font-size: 1.1rem;
-        }
-
-        .role-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .role-card {
-            background: var(--bg);
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 0.5rem;
         }
 
-        .role-card:hover {
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* CALENDAR */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border-radius: 12px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--border);
+        }
+
+        .calendar-month {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: var(--surface);
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .calendar-day {
+            background: var(--surface);
+            min-height: 120px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .calendar-day:hover {
+            background: var(--surface-hover);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .day-event {
+            background: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .day-event.game {
+            background: var(--accent);
+            color: var(--secondary);
+        }
+
+        .day-event.meeting {
+            background: var(--success);
+        }
+
+        /* ROSTER */
+        .roster-table {
+            background: var(--surface);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .roster-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 100px 120px 1fr 120px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .roster-row:hover {
+            background: var(--surface-hover);
+        }
+
+        .roster-row.header {
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--bg);
+        }
+
+        .roster-row.header:hover {
+            background: var(--bg);
+        }
+
+        .roster-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .roster-actions button {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        /* CARDS */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
             border-color: var(--primary);
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(255, 69, 0, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
-        .role-icon {
-            font-size: 3rem;
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 1rem;
         }
 
-        .role-name {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
             margin-bottom: 0.5rem;
         }
 
-        .role-description {
+        .card-content {
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            margin: 1rem 0;
         }
 
-        /* Login/Signup Overlay */
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .card-actions button {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* USER INFO */
+        .user-info {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--surface);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            z-index: 200;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .user-role {
+            background: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .logout-btn:hover {
+            background: var(--border);
+        }
+
+        /* AUTH OVERLAY */
         .auth-overlay {
             position: fixed;
             top: 0;
@@ -144,7 +563,6 @@
             padding: 3rem;
             max-width: 450px;
             width: 90%;
-            animation: slideUp 0.4s ease;
         }
 
         .auth-logo {
@@ -152,42 +570,33 @@
             font-size: 3rem;
             color: var(--primary);
             text-align: center;
-            margin-bottom: 0.5rem;
-            letter-spacing: 2px;
-        }
-
-        .auth-logo span {
-            color: var(--accent);
-        }
-
-        .auth-subtitle {
-            text-align: center;
-            color: var(--text-secondary);
             margin-bottom: 2rem;
-            font-size: 0.95rem;
+            letter-spacing: 3px;
         }
 
         .auth-tabs {
             display: flex;
             gap: 1rem;
             margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
         }
 
         .auth-tab {
             flex: 1;
-            padding: 0.75rem;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            padding: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
             cursor: pointer;
-            text-align: center;
+            font-size: 1rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
         }
 
         .auth-tab.active {
-            background: var(--primary);
-            border-color: var(--primary);
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
 
         .auth-form {
@@ -198,878 +607,236 @@
             display: block;
         }
 
-        .auth-input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .auth-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .auth-input, .auth-select {
-            width: 100%;
-            padding: 0.875rem;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .auth-input:focus, .auth-select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .auth-button {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-
-        .auth-button:hover {
-            background: #e63e00;
-            transform: translateY(-2px);
-        }
-
-        .back-button {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            margin-top: 1rem;
-        }
-
-        .back-button:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            transform: translateY(0);
-        }
-
-        /* User Info Header */
-        .user-info {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 0.75rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            z-index: 200;
-        }
-
-        .user-role-badge {
-            background: var(--primary);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .user-role-badge.player {
-            background: var(--accent);
-            color: var(--bg);
-        }
-
-        .logout-button {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .logout-button:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* Sidebar Navigation */
-        .sidebar {
-            width: 280px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            padding: 2rem 0;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-        }
-
-        .logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.2rem;
-            color: var(--primary);
-            padding: 0 2rem 2rem;
-            letter-spacing: 2px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo span {
-            color: var(--accent);
-        }
-
-        .nav-menu {
-            flex: 1;
-            padding: 2rem 0;
-        }
-
-        .nav-item {
-            padding: 1rem 2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .nav-item:hover {
-            background: rgba(255, 69, 0, 0.1);
-            border-left-color: var(--primary);
-        }
-
-        .nav-item.active {
-            background: rgba(255, 69, 0, 0.15);
-            border-left-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .nav-item.coach-only {
-            opacity: 1;
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            opacity: 0.8;
-        }
-
-        .shared-badge {
-            position: absolute;
-            right: 1rem;
-            background: var(--success);
-            color: var(--bg);
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 700;
-        }
-
-        /* Main Content Area */
-        .main-content {
-            margin-left: 280px;
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            padding-top: 5rem;
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-            animation: slideDown 0.6s ease;
-        }
-
-        .page-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 3rem;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        /* Content Sections */
-        .content-section {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        /* Sharing Controls */
-        .sharing-controls {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .sharing-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .sharing-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            color: var(--primary);
-        }
-
-        .sharing-options {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .sharing-option {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
-
-        .sharing-option-label {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .sharing-option-name {
-            font-weight: 600;
-        }
-
-        .sharing-option-desc {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 52px;
-            height: 28px;
-            background: var(--border);
-            border-radius: 14px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .toggle-switch.active {
-            background: var(--success);
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(24px);
-        }
-
-        /* Player View Indicator */
-        .player-locked {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 3rem;
-            text-align: center;
-            max-width: 600px;
-            margin: 4rem auto;
-        }
-
-        .player-locked-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .player-locked-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.5rem;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-            color: var(--text-secondary);
-        }
-
-        .player-locked-text {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        /* Calendar Styles */
-        .calendar-container {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 2rem;
-            border: 1px solid var(--border);
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background: var(--border);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-            margin-top: 1.5rem;
-        }
-
-        .calendar-day-header {
-            background: var(--bg);
-            padding: 1rem;
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .calendar-day {
-            background: var(--surface);
-            padding: 1rem;
-            min-height: 100px;
-        }
-
-        .day-number {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .day-event {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            margin-bottom: 0.25rem;
-        }
-
-        .event-practice {
-            background: rgba(255, 184, 0, 0.2);
-            color: var(--accent);
-            border-left: 2px solid var(--accent);
-        }
-
-        .event-game {
-            background: rgba(255, 69, 0, 0.2);
-            color: var(--primary);
-            border-left: 2px solid var(--primary);
-        }
-
-        /* Roster Styles */
-        .roster-table {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .roster-row {
-            display: grid;
-            grid-template-columns: 60px 1fr 100px 150px 120px;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            align-items: center;
-        }
-
-        .roster-row.header {
-            font-weight: 700;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            background: var(--bg);
-        }
-
-        .player-number {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.5rem;
-            color: var(--accent);
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            font-family: 'DM Sans', sans-serif;
-        }
-
-        .btn-primary:hover {
-            background: #e63e00;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(255, 69, 0, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--surface);
-            color: var(--text);
-            padding: 1rem 2rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            font-family: 'DM Sans', sans-serif;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Content placeholders */
-        .content-placeholder {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            color: var(--text-secondary);
-        }
-
-        /* Video Library Styles */
-        .video-categories {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+        .demo-section {
             margin-top: 2rem;
-        }
-
-        .video-category-card {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
             text-align: center;
         }
 
-        .video-category-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-4px);
-        }
-
-        .category-icon {
-            font-size: 3rem;
+        .demo-text {
+            color: var(--text-secondary);
             margin-bottom: 1rem;
         }
 
-        .category-name {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-        }
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
 
-        .category-count {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
 
-        .category-shared-indicator {
-            display: inline-block;
-            background: var(--success);
-            color: var(--bg);
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-top: 0.5rem;
-        }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
 
-        .category-private-indicator {
-            display: inline-block;
-            background: var(--border);
-            color: var(--text-secondary);
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-top: 0.5rem;
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .roster-row {
+                grid-template-columns: 60px 1fr 80px;
+            }
+
+            .roster-row > :nth-child(4),
+            .roster-row > :nth-child(5) {
+                display: none;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Role Selection Overlay -->
-    <div class="role-selection-overlay" id="roleSelection">
-        <div class="role-selection-container">
-            <div class="role-selection-title">WELCOME TO COURTCOMMAND</div>
-            <div class="role-selection-subtitle">Choose how you want to sign in</div>
-            
-            <div class="role-cards">
-                <div class="role-card" onclick="selectRole('coach')">
-                    <div class="role-icon">👨‍🏫</div>
-                    <div class="role-name">COACH / ADMIN</div>
-                    <div class="role-description">Full access to create & manage content</div>
-                </div>
-                
-                <div class="role-card" onclick="selectRole('player')">
-                    <div class="role-icon">🏀</div>
-                    <div class="role-name">PLAYER / PARENT</div>
-                    <div class="role-description">View schedules, roster & shared content</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Auth Overlay -->
-    <div class="auth-overlay hidden" id="authOverlay">
-        <div class="auth-container">
-            <div class="auth-logo">COURT<span>COMMAND</span></div>
-            <p class="auth-subtitle" id="authSubtitle">Coach Login</p>
-
-            <div class="auth-tabs">
-                <div class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
-                <div class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</div>
-            </div>
-
-            <!-- Login Form -->
-            <form class="auth-form active" id="loginForm">
-                <div class="auth-input-group">
-                    <label class="auth-label">Email</label>
-                    <input type="email" class="auth-input" placeholder="coach@example.com" required>
-                </div>
-                <div class="auth-input-group">
-                    <label class="auth-label">Password</label>
-                    <input type="password" class="auth-input" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="auth-button">Login</button>
-                <button type="button" class="auth-button back-button" onclick="backToRoleSelection()">← Back</button>
-            </form>
-
-            <!-- Signup Form -->
-            <form class="auth-form" id="signupForm">
-                <div class="auth-input-group">
-                    <label class="auth-label">Full Name</label>
-                    <input type="text" class="auth-input" id="signupName" placeholder="John Smith" required>
-                </div>
-                <div class="auth-input-group">
-                    <label class="auth-label">Email</label>
-                    <input type="email" class="auth-input" placeholder="email@example.com" required>
-                </div>
-                <div class="auth-input-group" id="teamCodeGroup" style="display: none;">
-                    <label class="auth-label">Team Access Code (provided by coach)</label>
-                    <input type="text" class="auth-input" placeholder="e.g., EAGLES2024">
-                </div>
-                <div class="auth-input-group">
-                    <label class="auth-label">Password</label>
-                    <input type="password" class="auth-input" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="auth-button">Create Account</button>
-                <button type="button" class="auth-button back-button" onclick="backToRoleSelection()">← Back</button>
-            </form>
-        </div>
-    </div>
-
     <div class="app-container">
-        <!-- User Info Header -->
-        <div class="user-info" id="userInfo" style="display: none;">
-            <span id="userName">Coach Demo</span>
-            <span class="user-role-badge" id="userRoleBadge">COACH</span>
-            <button class="logout-button" onclick="logout()">Logout</button>
+        <!-- Auth Overlay -->
+        <div class="auth-overlay" id="authOverlay">
+            <div class="auth-container">
+                <div class="auth-logo">COURTCOMMAND</div>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                    <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+                </div>
+
+                <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                </form>
+
+                <form class="auth-form" id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-input" id="signupName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="signupEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="signupPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                </form>
+
+                <div class="demo-section">
+                    <p class="demo-text">Just exploring?</p>
+                    <button class="btn btn-secondary" style="width: 100%;" onclick="enterDemoMode()">
+                        👀 Try Demo Mode
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar">
-            <div class="logo">COURT<span>COMMAND</span></div>
-            <div class="nav-menu" id="navMenu">
-                <!-- Nav items will be generated based on role -->
+        <!-- User Info -->
+        <div class="user-info" id="userInfo" style="display: none;">
+            <span class="user-name" id="userName"></span>
+            <span class="user-role" id="userRole">COACH</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">COURTCOMMAND</div>
+            <div class="nav-items" id="navItems">
+                <!-- Navigation will be built dynamically -->
             </div>
-        </nav>
+        </div>
 
         <!-- Main Content -->
-        <main class="main-content">
-            <!-- Calendar Section (ALWAYS ACCESSIBLE) -->
+        <div class="main-content">
+            <!-- Calendar Section -->
             <div class="content-section active" id="calendar-section">
                 <div class="page-header">
-                    <h1 class="page-title">CALENDAR</h1>
-                    <p class="page-subtitle">Season schedule and important dates</p>
+                    <div>
+                        <h1 class="page-title">CALENDAR</h1>
+                        <p class="page-subtitle">Manage your season schedule</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddEventModal()">
+                        + Add Event
+                    </button>
                 </div>
 
-                <div class="calendar-container">
-                    <div class="calendar-grid" id="calendarGrid">
-                        <!-- Calendar will be generated by JS -->
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button onclick="changeMonth(-1)">←</button>
+                        <span class="calendar-month" id="currentMonth"></span>
+                        <button onclick="changeMonth(1)">→</button>
                     </div>
+                    <button class="btn btn-secondary" onclick="goToToday()">Today</button>
                 </div>
+
+                <div class="calendar-grid" id="calendarGrid"></div>
             </div>
 
-            <!-- Roster Section (ALWAYS ACCESSIBLE) -->
+            <!-- Roster Section -->
             <div class="content-section" id="roster-section">
                 <div class="page-header">
-                    <h1 class="page-title">TEAM ROSTER</h1>
-                    <p class="page-subtitle">View team members and contact information</p>
+                    <div>
+                        <h1 class="page-title">TEAM ROSTER</h1>
+                        <p class="page-subtitle">Manage your players</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddPlayerModal()">
+                        + Add Player
+                    </button>
                 </div>
 
                 <div class="roster-table">
                     <div class="roster-row header">
                         <div>#</div>
                         <div>Name</div>
-                        <div>Grade</div>
                         <div>Position</div>
+                        <div>Grade</div>
                         <div>Contact</div>
+                        <div>Actions</div>
                     </div>
-                    <div id="rosterList">
-                        <!-- Roster will be generated by JS -->
-                    </div>
+                    <div id="rosterList"></div>
                 </div>
             </div>
 
-            <!-- Practice Plans (COACH ONLY) -->
+            <!-- Practice Plans Section -->
             <div class="content-section" id="practice-section">
                 <div class="page-header">
-                    <h1 class="page-title">PRACTICE PLANS</h1>
-                    <p class="page-subtitle">Create and manage your practice sessions</p>
+                    <div>
+                        <h1 class="page-title">PRACTICE PLANS</h1>
+                        <p class="page-subtitle">Build and organize practice sessions</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddPracticeModal()">
+                        + New Practice Plan
+                    </button>
                 </div>
 
-                <div id="practiceContent">
-                    <!-- Will show content for coaches, locked message for players -->
-                </div>
+                <div class="cards-grid" id="practiceList"></div>
             </div>
 
-            <!-- Drills (COACH ONLY) -->
+            <!-- Drills Section -->
             <div class="content-section" id="drills-section">
                 <div class="page-header">
-                    <h1 class="page-title">DRILL LIBRARY</h1>
-                    <p class="page-subtitle">Your collection of basketball drills</p>
-                </div>
-
-                <div id="drillsContent">
-                    <!-- Will show content for coaches, locked message for players -->
-                </div>
-            </div>
-
-            <!-- Video Library (COACH CAN SHARE) -->
-            <div class="content-section" id="videos-section">
-                <div class="page-header">
-                    <h1 class="page-title">VIDEO LIBRARY</h1>
-                    <p class="page-subtitle">Training videos organized by category</p>
-                </div>
-
-                <!-- Sharing Controls (Coach Only) -->
-                <div class="sharing-controls" id="sharingControls" style="display: none;">
-                    <div class="sharing-header">
-                        <div class="sharing-title">SHARING SETTINGS</div>
+                    <div>
+                        <h1 class="page-title">DRILL LIBRARY</h1>
+                        <p class="page-subtitle">Your collection of basketball drills</p>
                     </div>
-                    <div class="sharing-options">
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">🏀 Offense Videos</div>
-                                    <div class="sharing-option-desc">Share offensive plays and strategies</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleOffense" onclick="toggleShare('offense')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">🛡️ Defense Videos</div>
-                                    <div class="sharing-option-desc">Share defensive drills and techniques</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleDefense" onclick="toggleShare('defense')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">⚡ Ball Handling Videos</div>
-                                    <div class="sharing-option-desc">Share dribbling and ball control content</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleBallhandling" onclick="toggleShare('ballhandling')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">🎯 Shooting Videos</div>
-                                    <div class="sharing-option-desc">Share shooting form and practice videos</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleShooting" onclick="toggleShare('shooting')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-
-                        <div class="sharing-option">
-                            <div class="sharing-option-label">
-                                <div>
-                                    <div class="sharing-option-name">💪 Training Videos</div>
-                                    <div class="sharing-option-desc">Share conditioning and strength training</div>
-                                </div>
-                            </div>
-                            <div class="toggle-switch" id="toggleTraining" onclick="toggleShare('training')">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <button class="btn btn-primary" onclick="openAddDrillModal()">
+                        + Add Drill
+                    </button>
                 </div>
 
-                <!-- Video Categories -->
-                <div class="video-categories" id="videoCategories">
-                    <!-- Will be populated based on role and sharing settings -->
-                </div>
+                <div class="cards-grid" id="drillsList"></div>
             </div>
+        </div>
+    </div>
 
-            <!-- Team Management (COACH ONLY) -->
-            <div class="content-section" id="team-section">
-                <div class="page-header">
-                    <h1 class="page-title">TEAM MANAGEMENT</h1>
-                    <p class="page-subtitle">Manage players, access codes, and team settings</p>
-                </div>
-
-                <div id="teamContent">
-                    <!-- Will show content for coaches, locked message for players -->
-                </div>
-            </div>
-        </main>
+    <!-- Modals -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent"></div>
     </div>
 
     <script>
         // ============================================
-        // APP STATE
+        // STATE MANAGEMENT
         // ============================================
+        
         let currentUser = null;
-        let userRole = null; // 'coach' or 'player'
-        let selectedRole = null;
+        let currentDate = new Date();
+        let events = [];
+        let roster = [];
+        let practices = [];
+        let drills = [];
 
-        // Sharing settings (Coach controls these)
-        let sharingSettings = {
-            offense: false,
-            defense: false,
-            ballhandling: false,
-            shooting: false,
-            training: false
-        };
-
-        // Sample data
-        const sampleRoster = [
-            { number: 1, name: "Marcus Johnson", grade: "10th", position: "PG", contact: "(555) 123-4567" },
-            { number: 3, name: "Tyler Williams", grade: "11th", position: "SG", contact: "(555) 234-5678" },
-            { number: 5, name: "Jordan Martinez", grade: "10th", position: "SF", contact: "(555) 345-6789" },
-            { number: 10, name: "Alex Thompson", grade: "11th", position: "PF", contact: "(555) 456-7890" },
-            { number: 12, name: "Chris Anderson", grade: "12th", position: "C", contact: "(555) 567-8901" }
-        ];
-
-        const videoCategories = [
-            { id: 'offense', name: 'Offense', icon: '🏀', count: 12 },
-            { id: 'defense', name: 'Defense', icon: '🛡️', count: 8 },
-            { id: 'ballhandling', name: 'Ball Handling', icon: '⚡', count: 15 },
-            { id: 'shooting', name: 'Shooting', icon: '🎯', count: 20 },
-            { id: 'training', name: 'Training', icon: '💪', count: 10 }
-        ];
-
-        // ============================================
-        // ROLE SELECTION
-        // ============================================
-        function selectRole(role) {
-            selectedRole = role;
-            document.getElementById('roleSelection').classList.add('hidden');
-            document.getElementById('authOverlay').classList.remove('hidden');
-            
-            // Update auth subtitle based on role
-            const subtitle = role === 'coach' ? 'Coach / Admin Login' : 'Player / Parent Login';
-            document.getElementById('authSubtitle').textContent = subtitle;
-            
-            // Show/hide team code field for players
-            const teamCodeGroup = document.getElementById('teamCodeGroup');
-            if (role === 'player') {
-                teamCodeGroup.style.display = 'block';
-            } else {
-                teamCodeGroup.style.display = 'none';
-            }
+        // Load data from localStorage
+        function loadData() {
+            events = JSON.parse(localStorage.getItem('events') || '[]');
+            roster = JSON.parse(localStorage.getItem('roster') || '[]');
+            practices = JSON.parse(localStorage.getItem('practices') || '[]');
+            drills = JSON.parse(localStorage.getItem('drills') || '[]');
         }
 
-        function backToRoleSelection() {
-            document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('roleSelection').classList.remove('hidden');
-            selectedRole = null;
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('events', JSON.stringify(events));
+            localStorage.setItem('roster', JSON.stringify(roster));
+            localStorage.setItem('practices', JSON.stringify(practices));
+            localStorage.setItem('drills', JSON.stringify(drills));
         }
 
         // ============================================
-        // AUTH FUNCTIONS
+        // AUTHENTICATION
         // ============================================
+        
         function switchAuthTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
@@ -1083,88 +850,78 @@
             }
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        function handleLogin(e) {
             e.preventDefault();
-            const name = selectedRole === 'coach' ? 'Coach Demo' : 'Player Demo';
-            login('demo@example.com', name, selectedRole);
-        });
+            const email = e.target.querySelector('input[type="email"]').value;
+            login(email, 'User', 'coach');
+        }
 
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        function handleSignup(e) {
             e.preventDefault();
             const name = document.getElementById('signupName').value;
-            login('demo@example.com', name, selectedRole);
-        });
+            const email = document.getElementById('signupEmail').value;
+            login(email, name, 'coach');
+        }
 
         function login(email, name, role) {
-            currentUser = { email, name };
-            userRole = role;
-            
-            // Hide overlays
+            currentUser = { email, name, role };
             document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('roleSelection').classList.add('hidden');
-            
-            // Show user info
-            const userInfo = document.getElementById('userInfo');
-            userInfo.style.display = 'flex';
+            document.getElementById('userInfo').style.display = 'flex';
             document.getElementById('userName').textContent = name;
             
-            const roleBadge = document.getElementById('userRoleBadge');
-            if (role === 'coach') {
-                roleBadge.textContent = 'COACH';
-                roleBadge.classList.remove('player');
-            } else {
-                roleBadge.textContent = 'PLAYER';
-                roleBadge.classList.add('player');
-            }
-            
-            // Build navigation based on role
             buildNavigation();
-            
-            // Initialize content
-            initializeContent();
+            loadData();
+            renderCalendar();
+            renderRoster();
+            renderPractices();
+            renderDrills();
+        }
+
+        function enterDemoMode() {
+            login('demo@courtcommand.com', 'Demo Coach', 'coach');
+            // Load sample data for demo
+            events = [
+                {id: '1', title: 'Practice', date: '2026-03-15', time: '6:00 PM', type: 'practice', notes: 'Defense focus'},
+                {id: '2', title: 'Game vs Warriors', date: '2026-03-20', time: '7:00 PM', type: 'game', notes: 'Home game'}
+            ];
+            roster = [
+                {id: '1', number: 23, name: 'Michael Jordan', position: 'Guard', grade: '10th', contact: 'parent@email.com'},
+                {id: '2', number: 24, name: 'Kobe Bryant', position: 'Guard', grade: '11th', contact: 'parent2@email.com'}
+            ];
+            saveData();
+            renderCalendar();
+            renderRoster();
         }
 
         function logout() {
             currentUser = null;
-            userRole = null;
-            selectedRole = null;
+            document.getElementById('authOverlay').classList.remove('hidden');
             document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('roleSelection').classList.remove('hidden');
         }
 
         // ============================================
         // NAVIGATION
         // ============================================
+        
         function buildNavigation() {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.innerHTML = '';
-
             const navItems = [
-                { id: 'calendar', icon: '📅', label: 'Calendar', roles: ['coach', 'player'] },
-                { id: 'roster', icon: '👥', label: 'Team Roster', roles: ['coach', 'player'] },
-                { id: 'practice', icon: '📋', label: 'Practice Plans', roles: ['coach'] },
-                { id: 'drills', icon: '🏀', label: 'Drill Library', roles: ['coach'] },
-                { id: 'videos', icon: '🎥', label: 'Video Library', roles: ['coach', 'player'] },
-                { id: 'team', icon: '⚙️', label: 'Team Settings', roles: ['coach'] }
+                {id: 'calendar', icon: '📅', label: 'Calendar'},
+                {id: 'roster', icon: '👥', label: 'Team Roster'},
+                {id: 'practice', icon: '📋', label: 'Practice Plans'},
+                {id: 'drills', icon: '🏀', label: 'Drill Library'}
             ];
 
-            navItems.forEach((item, index) => {
-                if (item.roles.includes(userRole)) {
-                    const navItem = document.createElement('div');
-                    navItem.className = 'nav-item' + (index === 0 ? ' active' : '');
-                    navItem.dataset.section = item.id;
-                    navItem.innerHTML = `
-                        <span style="font-size: 1.2rem;">${item.icon}</span>
-                        <span>${item.label}</span>
-                    `;
-                    navItem.onclick = () => navigateTo(item.id);
-                    navMenu.appendChild(navItem);
-                }
-            });
+            const nav = document.getElementById('navItems');
+            nav.innerHTML = navItems.map(item => `
+                <div class="nav-item ${item.id === 'calendar' ? 'active' : ''}" 
+                     onclick="navigateTo('${item.id}')" data-section="${item.id}">
+                    <span class="nav-icon">${item.icon}</span>
+                    <span>${item.label}</span>
+                </div>
+            `).join('');
         }
 
         function navigateTo(section) {
-            // Update active nav item
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
                 if (item.dataset.section === section) {
@@ -1172,242 +929,694 @@
                 }
             });
 
-            // Show corresponding section
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.getElementById(`${section}-section`).classList.add('active');
         }
 
         // ============================================
-        // SHARING CONTROLS
-        // ============================================
-        function toggleShare(category) {
-            sharingSettings[category] = !sharingSettings[category];
-            const toggle = document.getElementById(`toggle${category.charAt(0).toUpperCase() + category.slice(1)}`);
-            
-            if (sharingSettings[category]) {
-                toggle.classList.add('active');
-            } else {
-                toggle.classList.remove('active');
-            }
-
-            // Update video categories display
-            updateVideoCategories();
-        }
-
-        function updateVideoCategories() {
-            const container = document.getElementById('videoCategories');
-            container.innerHTML = '';
-
-            videoCategories.forEach(cat => {
-                // For coaches: show all categories with sharing indicators
-                // For players: only show shared categories
-                if (userRole === 'coach' || sharingSettings[cat.id]) {
-                    const card = document.createElement('div');
-                    card.className = 'video-category-card';
-                    
-                    const sharedIndicator = userRole === 'coach' 
-                        ? (sharingSettings[cat.id] 
-                            ? '<div class="category-shared-indicator">✓ Shared with Team</div>'
-                            : '<div class="category-private-indicator">🔒 Private</div>')
-                        : '<div class="category-shared-indicator">✓ Shared by Coach</div>';
-
-                    card.innerHTML = `
-                        <div class="category-icon">${cat.icon}</div>
-                        <div class="category-name">${cat.name}</div>
-                        <div class="category-count">${cat.count} videos</div>
-                        ${sharedIndicator}
-                    `;
-                    container.appendChild(card);
-                }
-            });
-
-            // If player and no categories shared
-            if (userRole === 'player' && Object.values(sharingSettings).every(v => !v)) {
-                container.innerHTML = `
-                    <div class="player-locked" style="grid-column: 1/-1;">
-                        <div class="player-locked-icon">🔒</div>
-                        <h2 class="player-locked-title">NO VIDEOS SHARED YET</h2>
-                        <p class="player-locked-text">
-                            Your coach hasn't shared any training videos yet.<br>
-                            Check back soon for new content!
-                        </p>
-                    </div>
-                `;
-            }
-        }
-
-        // ============================================
-        // CONTENT INITIALIZATION
-        // ============================================
-        function initializeContent() {
-            // Initialize calendar
-            generateCalendar();
-
-            // Initialize roster
-            generateRoster();
-
-            // Initialize practice plans (coach only)
-            if (userRole === 'coach') {
-                document.getElementById('practiceContent').innerHTML = `
-                    <div class="action-buttons">
-                        <button class="btn-primary">+ New Practice Plan</button>
-                        <button class="btn-secondary">View Templates</button>
-                    </div>
-                    <div class="content-placeholder">
-                        <p>Create practice plans with drag-and-drop sections, time blocks, and drill assignments.</p>
-                    </div>
-                `;
-            } else {
-                document.getElementById('practiceContent').innerHTML = `
-                    <div class="player-locked">
-                        <div class="player-locked-icon">👨‍🏫</div>
-                        <h2 class="player-locked-title">COACH ONLY SECTION</h2>
-                        <p class="player-locked-text">
-                            Practice plans are managed by your coach.<br>
-                            Check the calendar for practice schedules and times.
-                        </p>
-                    </div>
-                `;
-            }
-
-            // Initialize drills (coach only)
-            if (userRole === 'coach') {
-                document.getElementById('drillsContent').innerHTML = `
-                    <div class="action-buttons">
-                        <button class="btn-primary">+ Add Drill</button>
-                        <button class="btn-secondary">Import Drills</button>
-                    </div>
-                    <div class="content-placeholder">
-                        <p>Save and organize basketball drills with embedded videos, coaching notes, and categories.</p>
-                    </div>
-                `;
-            } else {
-                document.getElementById('drillsContent').innerHTML = `
-                    <div class="player-locked">
-                        <div class="player-locked-icon">🏀</div>
-                        <h2 class="player-locked-title">COACH ONLY SECTION</h2>
-                        <p class="player-locked-text">
-                            The drill library is for coaches to organize their practice materials.<br>
-                            Your coach may share specific training videos with the team.
-                        </p>
-                    </div>
-                `;
-            }
-
-            // Initialize video library
-            if (userRole === 'coach') {
-                document.getElementById('sharingControls').style.display = 'block';
-            }
-            updateVideoCategories();
-
-            // Initialize team management (coach only)
-            if (userRole === 'coach') {
-                document.getElementById('teamContent').innerHTML = `
-                    <div class="sharing-controls">
-                        <div class="sharing-title">TEAM ACCESS CODE</div>
-                        <p style="margin: 1rem 0; color: var(--text-secondary);">
-                            Share this code with players and parents to give them access to the team:
-                        </p>
-                        <div style="background: var(--bg); padding: 1.5rem; border-radius: 8px; text-align: center;">
-                            <div style="font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 3px; color: var(--primary);">
-                                EAGLES2024
-                            </div>
-                            <button class="btn-secondary" style="margin-top: 1rem;">Generate New Code</button>
-                        </div>
-                    </div>
-
-                    <div class="content-placeholder" style="margin-top: 2rem;">
-                        <p>Manage team members, invite codes, and access permissions here.</p>
-                    </div>
-                `;
-            } else {
-                document.getElementById('teamContent').innerHTML = `
-                    <div class="player-locked">
-                        <div class="player-locked-icon">⚙️</div>
-                        <h2 class="player-locked-title">COACH ONLY SECTION</h2>
-                        <p class="player-locked-text">
-                            Team settings and management are controlled by your coach.<br>
-                            Contact your coach if you need to update your information.
-                        </p>
-                    </div>
-                `;
-            }
-        }
-
-        // ============================================
         // CALENDAR
         // ============================================
-        function generateCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
             
-            grid.innerHTML = '';
+            document.getElementById('currentMonth').textContent = 
+                new Date(year, month).toLocaleDateString('en-US', {month: 'long', year: 'numeric'});
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                .map(day => `<div class="calendar-day-header">${day}</div>`)
+                .join('');
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                grid.innerHTML += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+            }
+            
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEvents = events.filter(e => e.date === dateStr);
+                
+                grid.innerHTML += `
+                    <div class="calendar-day" onclick="openAddEventModal('${dateStr}')">
+                        <div class="day-number">${day}</div>
+                        ${dayEvents.map(e => `
+                            <div class="day-event ${e.type}" onclick="event.stopPropagation(); editEvent('${e.id}')">
+                                ${e.time} ${e.title}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // Next month days
+            const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+            const remainingCells = totalCells - (firstDay + daysInMonth);
+            for (let day = 1; day <= remainingCells; day++) {
+                grid.innerHTML += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+            }
+        }
 
-            // Headers
-            days.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'calendar-day-header';
-                header.textContent = day;
-                grid.appendChild(header);
-            });
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
 
-            // Sample events
-            const events = {
-                15: [{ type: 'practice', text: 'Practice 4pm' }],
-                18: [{ type: 'practice', text: 'Practice 4pm' }],
-                20: [{ type: 'game', text: 'vs Eagles 6pm' }],
-                22: [{ type: 'practice', text: 'Practice 4pm' }],
-                25: [{ type: 'practice', text: 'Practice 4pm' }],
-                27: [{ type: 'game', text: 'vs Hawks 7pm' }]
+        function goToToday() {
+            currentDate = new Date();
+            renderCalendar();
+        }
+
+        function openAddEventModal(date = null) {
+            const today = date || new Date().toISOString().split('T')[0];
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">Add Event</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="saveEvent(event)">
+                    <div class="form-group">
+                        <label class="form-label">Event Title</label>
+                        <input type="text" class="form-input" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" name="date" value="${today}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time</label>
+                        <input type="time" class="form-input" name="time" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="type">
+                            <option value="practice">Practice</option>
+                            <option value="game">Game</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" name="notes"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Event</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function saveEvent(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const event = {
+                id: Date.now().toString(),
+                title: formData.get('title'),
+                date: formData.get('date'),
+                time: formData.get('time'),
+                type: formData.get('type'),
+                notes: formData.get('notes')
             };
+            events.push(event);
+            saveData();
+            renderCalendar();
+            closeModal();
+        }
 
-            // Days
-            for (let i = 1; i <= 31; i++) {
-                const day = document.createElement('div');
-                day.className = 'calendar-day';
-                day.innerHTML = `<div class="day-number">${i}</div>`;
-                
-                if (events[i]) {
-                    events[i].forEach(event => {
-                        const eventDiv = document.createElement('div');
-                        eventDiv.className = `day-event event-${event.type}`;
-                        eventDiv.textContent = event.text;
-                        day.appendChild(eventDiv);
-                    });
-                }
-                
-                grid.appendChild(day);
+        function editEvent(id) {
+            const event = events.find(e => e.id === id);
+            if (!event) return;
+            
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">Edit Event</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="updateEvent(event, '${id}')">
+                    <div class="form-group">
+                        <label class="form-label">Event Title</label>
+                        <input type="text" class="form-input" name="title" value="${event.title}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" name="date" value="${event.date}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time</label>
+                        <input type="time" class="form-input" name="time" value="${event.time}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="type">
+                            <option value="practice" ${event.type === 'practice' ? 'selected' : ''}>Practice</option>
+                            <option value="game" ${event.type === 'game' ? 'selected' : ''}>Game</option>
+                            <option value="meeting" ${event.type === 'meeting' ? 'selected' : ''}>Meeting</option>
+                            <option value="other" ${event.type === 'other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" name="notes">${event.notes || ''}</textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-danger" onclick="deleteEvent('${id}')">Delete</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function updateEvent(e, id) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const index = events.findIndex(ev => ev.id === id);
+            events[index] = {
+                ...events[index],
+                title: formData.get('title'),
+                date: formData.get('date'),
+                time: formData.get('time'),
+                type: formData.get('type'),
+                notes: formData.get('notes')
+            };
+            saveData();
+            renderCalendar();
+            closeModal();
+        }
+
+        function deleteEvent(id) {
+            if (confirm('Delete this event?')) {
+                events = events.filter(e => e.id !== id);
+                saveData();
+                renderCalendar();
+                closeModal();
             }
         }
 
         // ============================================
         // ROSTER
         // ============================================
-        function generateRoster() {
-            const container = document.getElementById('rosterList');
-            container.innerHTML = '';
-            
-            sampleRoster.forEach(player => {
-                const row = document.createElement('div');
-                row.className = 'roster-row';
-                row.innerHTML = `
-                    <div class="player-number">${player.number}</div>
-                    <div>${player.name}</div>
-                    <div>${player.grade}</div>
-                    <div>${player.position}</div>
-                    <div>${player.contact}</div>
+        
+        function renderRoster() {
+            const list = document.getElementById('rosterList');
+            if (roster.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <div class="empty-state-text">No players added yet</div>
+                        <button class="btn btn-primary" onclick="openAddPlayerModal()">Add Your First Player</button>
+                    </div>
                 `;
-                container.appendChild(row);
-            });
+                return;
+            }
+            
+            list.innerHTML = roster.map(player => `
+                <div class="roster-row">
+                    <div>#${player.number}</div>
+                    <div>${player.name}</div>
+                    <div>${player.position}</div>
+                    <div>${player.grade}</div>
+                    <div>${player.contact}</div>
+                    <div class="roster-actions">
+                        <button class="btn btn-secondary" onclick="editPlayer('${player.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deletePlayer('${player.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
         }
+
+        function openAddPlayerModal() {
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">Add Player</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="savePlayer(event)">
+                    <div class="form-group">
+                        <label class="form-label">Player Name</label>
+                        <input type="text" class="form-input" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jersey Number</label>
+                        <input type="number" class="form-input" name="number" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Position</label>
+                        <select class="form-select" name="position">
+                            <option value="Guard">Guard</option>
+                            <option value="Forward">Forward</option>
+                            <option value="Center">Center</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Grade</label>
+                        <input type="text" class="form-input" name="grade" placeholder="e.g., 9th">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Parent Contact</label>
+                        <input type="email" class="form-input" name="contact" placeholder="parent@email.com">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Player</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function savePlayer(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            roster.push({
+                id: Date.now().toString(),
+                name: formData.get('name'),
+                number: formData.get('number'),
+                position: formData.get('position'),
+                grade: formData.get('grade'),
+                contact: formData.get('contact')
+            });
+            saveData();
+            renderRoster();
+            closeModal();
+        }
+
+        function editPlayer(id) {
+            const player = roster.find(p => p.id === id);
+            if (!player) return;
+            
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">Edit Player</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="updatePlayer(event, '${id}')">
+                    <div class="form-group">
+                        <label class="form-label">Player Name</label>
+                        <input type="text" class="form-input" name="name" value="${player.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jersey Number</label>
+                        <input type="number" class="form-input" name="number" value="${player.number}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Position</label>
+                        <select class="form-select" name="position">
+                            <option value="Guard" ${player.position === 'Guard' ? 'selected' : ''}>Guard</option>
+                            <option value="Forward" ${player.position === 'Forward' ? 'selected' : ''}>Forward</option>
+                            <option value="Center" ${player.position === 'Center' ? 'selected' : ''}>Center</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Grade</label>
+                        <input type="text" class="form-input" name="grade" value="${player.grade}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Parent Contact</label>
+                        <input type="email" class="form-input" name="contact" value="${player.contact}">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function updatePlayer(e, id) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const index = roster.findIndex(p => p.id === id);
+            roster[index] = {
+                ...roster[index],
+                name: formData.get('name'),
+                number: formData.get('number'),
+                position: formData.get('position'),
+                grade: formData.get('grade'),
+                contact: formData.get('contact')
+            };
+            saveData();
+            renderRoster();
+            closeModal();
+        }
+
+        function deletePlayer(id) {
+            if (confirm('Remove this player from the roster?')) {
+                roster = roster.filter(p => p.id !== id);
+                saveData();
+                renderRoster();
+            }
+        }
+
+        // ============================================
+        // PRACTICE PLANS
+        // ============================================
+        
+        function renderPractices() {
+            const list = document.getElementById('practiceList');
+            if (practices.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">No practice plans yet</div>
+                        <button class="btn btn-primary" onclick="openAddPracticeModal()">Create Your First Practice Plan</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = practices.map(plan => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${plan.title}</div>
+                            <div class="card-meta">${plan.date} • ${plan.duration} min</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <strong>Focus:</strong> ${plan.focus}<br>
+                        ${plan.notes ? `<div style="margin-top: 0.5rem">${plan.notes}</div>` : ''}
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" onclick="editPractice('${plan.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deletePractice('${plan.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddPracticeModal() {
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">New Practice Plan</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="savePractice(event)">
+                    <div class="form-group">
+                        <label class="form-label">Practice Title</label>
+                        <input type="text" class="form-input" name="title" placeholder="e.g., Tuesday Practice" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-input" name="duration" value="90" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Focus Area</label>
+                        <input type="text" class="form-input" name="focus" placeholder="e.g., Defense, Shooting, Conditioning" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" name="notes" placeholder="Drills, objectives, reminders..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Plan</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function savePractice(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            practices.push({
+                id: Date.now().toString(),
+                title: formData.get('title'),
+                date: formData.get('date'),
+                duration: formData.get('duration'),
+                focus: formData.get('focus'),
+                notes: formData.get('notes')
+            });
+            saveData();
+            renderPractices();
+            closeModal();
+        }
+
+        function editPractice(id) {
+            const plan = practices.find(p => p.id === id);
+            if (!plan) return;
+            
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">Edit Practice Plan</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="updatePractice(event, '${id}')">
+                    <div class="form-group">
+                        <label class="form-label">Practice Title</label>
+                        <input type="text" class="form-input" name="title" value="${plan.title}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" name="date" value="${plan.date}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-input" name="duration" value="${plan.duration}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Focus Area</label>
+                        <input type="text" class="form-input" name="focus" value="${plan.focus}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" name="notes">${plan.notes || ''}</textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function updatePractice(e, id) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const index = practices.findIndex(p => p.id === id);
+            practices[index] = {
+                ...practices[index],
+                title: formData.get('title'),
+                date: formData.get('date'),
+                duration: formData.get('duration'),
+                focus: formData.get('focus'),
+                notes: formData.get('notes')
+            };
+            saveData();
+            renderPractices();
+            closeModal();
+        }
+
+        function deletePractice(id) {
+            if (confirm('Delete this practice plan?')) {
+                practices = practices.filter(p => p.id !== id);
+                saveData();
+                renderPractices();
+            }
+        }
+
+        // ============================================
+        // DRILLS
+        // ============================================
+        
+        function renderDrills() {
+            const list = document.getElementById('drillsList');
+            if (drills.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏀</div>
+                        <div class="empty-state-text">No drills in your library</div>
+                        <button class="btn btn-primary" onclick="openAddDrillModal()">Add Your First Drill</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = drills.map(drill => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${drill.name}</div>
+                            <div class="card-meta">${drill.category} • ${drill.duration} min</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        ${drill.description}
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" onclick="editDrill('${drill.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteDrill('${drill.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddDrillModal() {
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">Add Drill</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="saveDrill(event)">
+                    <div class="form-group">
+                        <label class="form-label">Drill Name</label>
+                        <input type="text" class="form-input" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category">
+                            <option value="Offense">Offense</option>
+                            <option value="Defense">Defense</option>
+                            <option value="Shooting">Shooting</option>
+                            <option value="Ball Handling">Ball Handling</option>
+                            <option value="Conditioning">Conditioning</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-input" name="duration" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" name="description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Video URL (optional)</label>
+                        <input type="url" class="form-input" name="video" placeholder="https://youtube.com/...">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Drill</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function saveDrill(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            drills.push({
+                id: Date.now().toString(),
+                name: formData.get('name'),
+                category: formData.get('category'),
+                duration: formData.get('duration'),
+                description: formData.get('description'),
+                video: formData.get('video')
+            });
+            saveData();
+            renderDrills();
+            closeModal();
+        }
+
+        function editDrill(id) {
+            const drill = drills.find(d => d.id === id);
+            if (!drill) return;
+            
+            showModal(`
+                <div class="modal-header">
+                    <div class="modal-title">Edit Drill</div>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <form onsubmit="updateDrill(event, '${id}')">
+                    <div class="form-group">
+                        <label class="form-label">Drill Name</label>
+                        <input type="text" class="form-input" name="name" value="${drill.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category">
+                            <option value="Offense" ${drill.category === 'Offense' ? 'selected' : ''}>Offense</option>
+                            <option value="Defense" ${drill.category === 'Defense' ? 'selected' : ''}>Defense</option>
+                            <option value="Shooting" ${drill.category === 'Shooting' ? 'selected' : ''}>Shooting</option>
+                            <option value="Ball Handling" ${drill.category === 'Ball Handling' ? 'selected' : ''}>Ball Handling</option>
+                            <option value="Conditioning" ${drill.category === 'Conditioning' ? 'selected' : ''}>Conditioning</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-input" name="duration" value="${drill.duration}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" name="description" required>${drill.description}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Video URL (optional)</label>
+                        <input type="url" class="form-input" name="video" value="${drill.video || ''}">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function updateDrill(e, id) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const index = drills.findIndex(d => d.id === id);
+            drills[index] = {
+                ...drills[index],
+                name: formData.get('name'),
+                category: formData.get('category'),
+                duration: formData.get('duration'),
+                description: formData.get('description'),
+                video: formData.get('video')
+            };
+            saveData();
+            renderDrills();
+            closeModal();
+        }
+
+        function deleteDrill(id) {
+            if (confirm('Delete this drill?')) {
+                drills = drills.filter(d => d.id !== id);
+                saveData();
+                renderDrills();
+            }
+        }
+
+        // ============================================
+        // MODAL HELPERS
+        // ============================================
+        
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
 
         // ============================================
         // INITIALIZATION
         // ============================================
-        // Show role selection on load
-        window.addEventListener('load', () => {
-            document.getElementById('roleSelection').classList.remove('hidden');
-        });
+        
+        window.onload = function() {
+            // Check if user is logged in
+            if (!currentUser) {
+                document.getElementById('authOverlay').classList.remove('hidden');
+            }
+        };
     </script>
 </body>
 </html>
